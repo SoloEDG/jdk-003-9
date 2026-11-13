@@ -1,9 +1,10 @@
-import { exportRoute, restoreRoute } from "@/features/route";
+import { exportRoute, restoreRoute, routeState } from "@/features/route";
 import { exportBattle, restoreBattle } from "@/features/battle";
 import { exportDeck, restoreDeck } from "@/features/deck";
 import { exportReward, restoreReward } from "@/features/reward";
 import { exportShop, restoreShop } from "@/features/shop";
-import { exportSession, restoreSession } from "./session";
+import { loadLegacy } from "@/features/legacy";
+import { exportSession, restoreSession, session } from "./session";
 const KEY = "ember-path-v1";
 function snapshot() {
   return {
@@ -26,7 +27,10 @@ export function save() {
 }
 export function load() {
   const raw = localStorage.getItem(KEY);
-  if (!raw) return false;
+  if (!raw) {
+    loadLegacy(false);
+    return false;
+  }
   try {
     const d = JSON.parse(raw);
     if (
@@ -37,8 +41,10 @@ export function load() {
       !Array.isArray(d.reward?.history) ||
       !Array.isArray(d.shop?.stock) ||
       !d.session
-    )
+    ) {
+      loadLegacy(false);
       return false;
+    }
     const old = snapshot();
     try {
       restoreRoute(d.route);
@@ -54,10 +60,14 @@ export function load() {
       restoreReward(old.reward);
       restoreShop(old.shop);
       restoreSession(old.session);
+      loadLegacy(false);
       return false;
     }
+    // 传承数据独立存放；缺失时从零开始（旅途进行中则冻结），不默认解锁任何内容
+    loadLegacy(!session.ended && routeState.visited.length > 0);
     return true;
   } catch {
+    loadLegacy(false);
     return false;
   }
 }

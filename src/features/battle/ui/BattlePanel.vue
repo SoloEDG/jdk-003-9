@@ -11,6 +11,9 @@ defineEmits<{ play: [id: string]; end: []; settle: [] }>();
       ><span>回合 {{ battleState.turn }}</span>
     </div>
     <h2>{{ battleState.enemy?.name ?? "等待下一场遭遇" }}</h2>
+    <div v-if="battleState.talents.length" class="talent-notes">
+      <span v-for="n in battleState.talents" :key="n">✦ 天赋 · {{ n }}</span>
+    </div>
     <div v-if="battleState.enemy" class="arena">
       <ActorCard :actor="battleState.hero" name="余烬旅人" />
       <div class="versus">

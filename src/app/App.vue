@@ -5,17 +5,20 @@ import { BattlePanel, battleState } from "@/features/battle";
 import { RewardPanel } from "@/features/reward";
 import { ShopPanel } from "@/features/shop";
 import { DeckPanel, deckState } from "@/features/deck";
+import { LegacyPanel, legacyState } from "@/features/legacy";
 import { regionNames } from "@/shared/domain";
 import { session, switchTab } from "./session";
 import { load } from "./persistence";
 import * as commands from "./commands";
-load();
+const restored = load();
+if (!restored) commands.restart();
 const tabs = [
   ["route", "路线", "01"],
   ["battle", "战斗", "02"],
   ["reward", "奖励", "03"],
   ["shop", "商店", "04"],
   ["deck", "牌组", "05"],
+  ["legacy", "传承", "06"],
 ];
 const progress = computed(() => (routeState.visited.length / 9) * 100);
 </script>
@@ -48,6 +51,11 @@ const progress = computed(() => (routeState.visited.length / 9) * 100);
         <div class="progress"><i :style="{ width: progress + '%' }"></i></div>
         <small>{{ routeState.visited.length }} / 9 段旅程</small>
       </div>
+      <button class="legacy-link" data-action="open-legacy" @click="switchTab('legacy')">
+        ✦ 传承 {{ legacyState.points }} 点{{
+          legacyState.frozen ? " · 已冻结" : ""
+        }}
+      </button>
       <button class="restart" data-action="restart" @click="commands.restart">
         ↻ 重新启程
       </button>
@@ -76,6 +84,9 @@ const progress = computed(() => (routeState.visited.length / 9) * 100);
           <div>
             <small>牌组</small><b>{{ deckState.cards.length }}</b>
           </div>
+          <div>
+            <small>传承</small><b class="legacy">{{ legacyState.points }}</b>
+          </div>
         </div>
       </header>
       <div class="message" role="status">
@@ -103,13 +114,13 @@ const progress = computed(() => (routeState.visited.length / 9) * 100);
             @buy="commands.buy"
             @leave="commands.leaveShop"
           /><DeckPanel
-            v-else
+            v-else-if="session.tab === 'deck'"
             :camp="session.context?.kind === 'camp' && !routeState.resolved"
             :locked="battleState.phase === 'playing'"
             @upgrade="commands.upgrade"
             @remove="commands.remove"
             @camp="commands.camp"
-          />
+          /><LegacyPanel v-else />
         </div>
         <aside class="right-rail">
           <div class="rail-art">

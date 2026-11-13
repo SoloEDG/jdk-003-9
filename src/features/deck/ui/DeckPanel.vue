@@ -19,6 +19,9 @@ const emit = defineEmits<{
     <p class="muted">
       相同卡牌拥有独立身份。强化只影响选中的这一张，战斗中的牌组锁定。
     </p>
+    <div v-if="deckState.talentNotes.length" class="talent-notes">
+      <span v-for="n in deckState.talentNotes" :key="n">✦ 天赋 · {{ n }}</span>
+    </div>
     <div v-if="camp" class="camp">
       <h3>篝火 · {{ deckState.campUsed ? "已经休整" : "选择一次休整" }}</h3>
       <button :disabled="deckState.campUsed" @click="emit('camp', 'rest')">

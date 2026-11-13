@@ -8,6 +8,7 @@ const state = reactive({
   removals: 0,
   campUsed: false,
   selected: "",
+  talentNotes: [] as string[],
 });
 export const deckState = readonly(state);
 export function deckCards(): CardInstance[] {
@@ -71,6 +72,7 @@ export function exportDeck() {
       hero: state.hero,
       removals: state.removals,
       campUsed: state.campUsed,
+      talentNotes: state.talentNotes,
     }),
   );
 }
@@ -79,12 +81,14 @@ export function restoreDeck(d: ReturnType<typeof exportDeck>) {
   state.hero = d.hero;
   state.removals = d.removals;
   state.campUsed = d.campUsed;
+  state.talentNotes = Array.isArray(d.talentNotes) ? d.talentNotes : [];
   state.selected = "";
 }
-export function resetDeck() {
-  state.cards = starter();
+export function resetDeck(cards?: CardInstance[], talentNotes: string[] = []) {
+  state.cards = cards ?? starter();
   state.hero = { hp: 72, maxHp: 72, gold: 80, scars: 0 };
   state.removals = 0;
   state.campUsed = false;
   state.selected = "";
+  state.talentNotes = talentNotes;
 }

@@ -1,7 +1,8 @@
 import type { JourneyContext } from "@/shared/domain";
 import { shuffle, hash } from "@/shared/random";
-export function rewardPool(context: JourneyContext) {
+export function rewardPool(context: JourneyContext, alwaysRare = false) {
   const rare =
+    alwaysRare ||
     context.influence.heat >= 2 ||
     context.kind === "elite" ||
     context.kind === "boss";

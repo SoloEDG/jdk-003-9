@@ -4,6 +4,7 @@ import { makeMap } from "../lib/map";
 import { available, contextFor } from "../lib/rules";
 const state = reactive({
   nodes: makeMap(),
+  unlocked: [] as string[],
   visited: [] as string[],
   resolved: true,
   influence: { heat: 0, favor: 0, scarcity: 0 } as Influence,
@@ -36,6 +37,7 @@ export function exportRoute() {
       visited: state.visited,
       resolved: state.resolved,
       influence: state.influence,
+      unlocked: state.unlocked,
     }),
   );
 }
@@ -43,9 +45,13 @@ export function restoreRoute(data: ReturnType<typeof exportRoute>) {
   state.visited = data.visited;
   state.resolved = data.resolved;
   state.influence = data.influence;
+  state.unlocked = Array.isArray(data.unlocked) ? data.unlocked : [];
+  state.nodes = makeMap(state.unlocked);
   state.preview = null;
 }
-export function resetRoute() {
+export function resetRoute(unlockedTalents: string[] = []) {
+  state.unlocked = [...unlockedTalents];
+  state.nodes = makeMap(state.unlocked);
   state.visited = [];
   state.resolved = true;
   state.influence = { heat: 0, favor: 0, scarcity: 0 };

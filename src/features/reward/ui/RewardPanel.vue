@@ -17,6 +17,11 @@ defineEmits<{ claim: [skip: boolean] }>();
         ✦ {{ rewardState.offer.gold }} 金币 · 回复
         {{ rewardState.offer.heal }} 生命
       </div>
+      <div v-if="rewardState.offer.notes?.length" class="talent-notes">
+        <span v-for="n in rewardState.offer.notes" :key="n"
+          >✦ 天赋 · {{ n }}</span
+        >
+      </div>
       <div class="reward-options">
         <button
           v-for="key in rewardState.offer.cards"

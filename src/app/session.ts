@@ -1,10 +1,12 @@
 import { reactive, readonly } from "vue";
 import type { JourneyContext } from "@/shared/domain";
+import { uid } from "@/shared/random";
 const state = reactive({
   tab: "route",
   context: null as JourneyContext | null,
   message: "在火熄灭之前，找到通向深渊的路。",
   ended: false,
+  runId: uid("run"),
 });
 export const session = readonly(state);
 export function switchTab(tab: string) {
@@ -24,10 +26,12 @@ export function exportSession() {
 }
 export function restoreSession(d: ReturnType<typeof exportSession>) {
   Object.assign(state, d);
+  if (typeof state.runId !== "string" || !state.runId) state.runId = uid("run");
 }
 export function resetSession() {
   state.tab = "route";
   state.context = null;
   state.message = "新的火种已点燃。";
   state.ended = false;
+  state.runId = uid("run");
 }

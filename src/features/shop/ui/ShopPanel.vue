@@ -20,6 +20,9 @@ defineEmits<{ buy: [id: string]; leave: [] }>();
           )
         }}
       </p>
+      <div v-if="shopState.mods.notes.length" class="talent-notes">
+        <span v-for="n in shopState.mods.notes" :key="n">✦ 天赋 · {{ n }}</span>
+      </div>
       <div class="stock">
         <div v-for="item in shopState.stock" :key="item.id">
           <div>

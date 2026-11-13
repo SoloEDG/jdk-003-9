@@ -14,6 +14,7 @@ export interface RouteNode {
   title: string;
   influence: Influence;
   next: string[];
+  talent?: string;
 }
 export interface CardInstance {
   id: string;
@@ -64,6 +65,7 @@ export interface RewardOffer {
   gold: number;
   heal: number;
   claimed: boolean;
+  notes?: string[];
 }
 export interface Purchase {
   id: string;

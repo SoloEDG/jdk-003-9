@@ -1,15 +1,15 @@
 import { reactive, readonly } from "vue";
 import type { BattleResult, RewardOffer } from "@/shared/domain";
-import { offerFrom, validChoice } from "../lib/settlement";
+import { offerFrom, validChoice, type RewardMods } from "../lib/settlement";
 const state = reactive({
   offer: null as RewardOffer | null,
   history: [] as string[],
   selected: "",
 });
 export const rewardState = readonly(state);
-export function openReward(result: BattleResult) {
+export function openReward(result: BattleResult, mods?: RewardMods) {
   if (!result.won || state.history.includes(result.id)) return false;
-  state.offer = offerFrom(result);
+  state.offer = offerFrom(result, mods);
   state.selected = "";
   return true;
 }

@@ -27,6 +27,13 @@ interface BattleState {
   queue: EffectEvent[];
   log: string[];
   result: BattleResult | null;
+  talents: string[];
+}
+export interface BattleMods {
+  block: number;
+  strength: number;
+  energy: number;
+  notes: string[];
 }
 const emptyHero = (): Actor => ({
   hp: 72,
@@ -48,6 +55,7 @@ const state = reactive<BattleState>({
   queue: [],
   log: [],
   result: null,
+  talents: [],
 });
 export const battleState = readonly(state);
 export function beginBattle(
@@ -55,18 +63,29 @@ export function beginBattle(
   deck: CardInstance[],
   hp: number,
   maxHp: number,
+  mods?: BattleMods,
 ) {
   state.id = uid("battle");
   state.context = context;
-  state.hero = { ...emptyHero(), hp, maxHp };
+  state.hero = {
+    ...emptyHero(),
+    hp,
+    maxHp,
+    block: mods?.block ?? 0,
+    strength: mods?.strength ?? 0,
+  };
   state.enemy = spawnEnemy(context);
   state.piles = makePiles(deck, context.nodeId);
-  state.energy = 3;
+  state.energy = 3 + (mods?.energy ?? 0);
   state.turn = 1;
   state.phase = "playing";
   state.queue = [];
   state.result = null;
-  state.log = ["战斗开始。状态和牌堆仅属于本场遭遇。"];
+  state.talents = mods?.notes ?? [];
+  state.log = [
+    "战斗开始。状态和牌堆仅属于本场遭遇。",
+    ...state.talents.map((n) => `天赋生效 · ${n}`),
+  ];
   drawCards(state.piles, 5, 1);
 }
 function finish() {
@@ -157,4 +176,5 @@ export function resetBattle() {
   state.result = null;
   state.piles = makePiles([], "");
   state.log = [];
+  state.talents = [];
 }

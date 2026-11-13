@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { routeState, choices, previewRoute } from "../model/state";
-import { regionNames } from "@/shared/domain";
+import { regionNames, type RouteNode } from "@/shared/domain";
+import { talentName } from "@/features/legacy";
 const emit = defineEmits<{ enter: [id: string] }>();
 const allowed = computed(() => choices());
 const layers = computed(() =>
@@ -10,6 +11,14 @@ const layers = computed(() =>
   ),
 );
 const symbols = { battle: "⚔", elite: "♜", shop: "⚖", camp: "♨", boss: "◈" };
+function influenceText(n: { influence: RouteNode["influence"] }) {
+  const parts = [
+    n.influence.heat ? `威胁 +${n.influence.heat}` : "",
+    n.influence.favor ? `好感 +${n.influence.favor}` : "",
+    n.influence.scarcity ? `稀缺 +${n.influence.scarcity}` : "",
+  ].filter(Boolean);
+  return parts.join(" / ") || "无影响";
+}
 </script>
 <template>
   <section class="panel route-panel">
@@ -19,7 +28,7 @@ const symbols = { battle: "⚔", elite: "♜", shop: "⚖", camp: "♨", boss: "
     </div>
     <h2>每一步，留下回响</h2>
     <p class="muted">
-      林地 → 熔铁边境 → 无声深渊。险路增加敌人力量与稀有奖励，安路积累商人好感。
+      林地 → 熔铁边境 → 无声深渊。险路增加敌人力量与稀有奖励，安路积累商人好感。传承天赋可解锁隐藏节点。
     </p>
     <div class="route-scroll">
       <div v-for="(layer, d) in layers" :key="d" class="route-row">
@@ -32,6 +41,7 @@ const symbols = { battle: "⚔", elite: "♜", shop: "⚖", camp: "♨", boss: "
           :class="{
             available: allowed.includes(node.id),
             visited: routeState.visited.includes(node.id),
+            talented: !!node.talent,
           }"
           :disabled="!allowed.includes(node.id)"
           @mouseenter="previewRoute(node.id)"
@@ -42,8 +52,10 @@ const symbols = { battle: "⚔", elite: "♜", shop: "⚖", camp: "♨", boss: "
           ><span
             >{{ node.title
             }}<small
-              >{{ regionNames[node.region] }} ·
-              {{ node.lane ? "威胁 +1 / 稀缺 +1" : "好感 +1" }}</small
+              >{{ regionNames[node.region] }} · {{ influenceText(node)
+              }}<em v-if="node.talent" class="node-talent"
+                >✦ 天赋「{{ talentName(node.talent) }}」解锁</em
+              ></small
             ></span
           ><i>{{ routeState.visited.includes(node.id) ? "✓" : "↗" }}</i>
         </button>
